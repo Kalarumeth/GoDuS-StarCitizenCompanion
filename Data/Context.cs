@@ -15,8 +15,8 @@ namespace StarCitizenCompanion.Data
         {
             _dbPath = System.IO.Path.Combine(
                 System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData),
-                "Nothing",
-                "tn_data.db");
+                "StarCitizenCompanion",
+                "scc_data.db");
 
             System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(_dbPath));
         }
@@ -27,19 +27,3 @@ namespace StarCitizenCompanion.Data
         }
     }
 }
-
-
-//using (var db = new Data.Context())
-//{
-//    db.Transactions.Add(new Models.Transaction
-//    {
-//        Description = "Pippo",
-//        Amount = 2500m
-//    });
-//    db.SaveChanges();
-//}
-
-//using (var db = new Data.Context())
-//{
-//    var list = db.Transactions.ToList();
-//}

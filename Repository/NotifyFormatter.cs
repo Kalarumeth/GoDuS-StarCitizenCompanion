@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace StarCitizenCompanion.Repository
 {
-    public class NotifyFormatter
+    public static class NotifyFormatter
     {
-        public string ActorDeath(string log)
+        public static string ActorDeath(string log)
         {
             var regex = new Regex(
             @"CActor::Kill:\s'([^']+)'.*?zone\s'([^']+)'\s+killed by\s'([^']+)'.*?damage type\s'([^']+)'",
@@ -18,10 +18,10 @@ namespace StarCitizenCompanion.Repository
             var match = regex.Match(log);
             if (match.Success)
             {
-                string killedActor = match.Groups[1].Value;   // dopo CActor::Kill:
-                string zone = match.Groups[2].Value;          // dopo zone
-                string killer = match.Groups[3].Value;        // dopo killed by
-                string damageType = match.Groups[4].Value;    // dopo damage type
+                string killedActor = match.Groups[1].Value;   // CActor::Kill:
+                string zone = match.Groups[2].Value;          // Zone
+                string killer = match.Groups[3].Value;        // Killed by
+                string damageType = match.Groups[4].Value;    // Damage type
 
                 Console.WriteLine($"Killed Actor: {killedActor}");
                 Console.WriteLine($"Zone: {zone}");

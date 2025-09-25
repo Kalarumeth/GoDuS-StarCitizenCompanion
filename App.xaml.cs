@@ -11,7 +11,6 @@ namespace StarCitizenCompanion
     public partial class App : Application
     {
         private NotifyIcon _trayIcon;
-        private LogWatcher _logWatcher;
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -37,21 +36,20 @@ namespace StarCitizenCompanion
 
             // Avvia watcher sul log
             // Da spottare il path in appconfig
-            //_logWatcher = new LogWatcher(@"C:\Program Files\Roberts Space Industries\StarCitizen\LIVE\Game.log");
-            _logWatcher = new LogWatcher(@"C:\Users\claud\Desktop\test.txt");
-            _logWatcher.OnNewEvent += LogWatcher_OnNewEvent;
+            // "C:\Program Files\Roberts Space Industries\StarCitizen\LIVE\Game.log");
+
+            var tailer = new LogTailer(@"C:\Program Files\Roberts Space Industries\StarCitizen\LIVE\Game.log");
+            tailer.OnNewLine += line =>
+            {
+                Console.WriteLine("Nuovo evento: " + line);
+                // qui puoi chiamare il parser regex
+                NotificationService.ShowNotification(line);
+            };
+            tailer.Start();
 
             // Non mostrare subito la main window
             Current.MainWindow = new MainWindow();
             Current.MainWindow.Hide();
-        }
-
-        private void LogWatcher_OnNewEvent(string message)
-        {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                NotificationService.ShowNotification(message);
-            });
         }
 
         private void ShowMainWindow()

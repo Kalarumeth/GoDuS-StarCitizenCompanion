@@ -14,9 +14,10 @@ namespace StarCitizenCompanion.Services
         {
             SaveAndNotify(message);
 
-            _queue.Enqueue(message);
-            if (!_isShowing)
-                ShowNext();
+            // Notification Not Work
+            //_queue.Enqueue(message);
+            //if (!_isShowing)
+            //    ShowNext();
         }
 
         private static void ShowNext()
