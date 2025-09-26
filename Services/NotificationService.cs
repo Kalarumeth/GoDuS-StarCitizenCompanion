@@ -1,6 +1,4 @@
-﻿using StarCitizenCompanion.Data;
-using StarCitizenCompanion.Models;
-using System.Windows;
+﻿using System.Windows;
 
 namespace StarCitizenCompanion.Services
 {

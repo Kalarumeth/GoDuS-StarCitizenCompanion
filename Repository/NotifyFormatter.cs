@@ -1,5 +1,4 @@
-﻿using SQLitePCL;
-using StarCitizenCompanion.Data;
+﻿using StarCitizenCompanion.Data;
 using StarCitizenCompanion.Models;
 using System.Text.RegularExpressions;
 

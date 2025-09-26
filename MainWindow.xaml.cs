@@ -56,5 +56,22 @@ namespace StarCitizenCompanion
                 _notifications.Insert(0, notif); // aggiungo in cima
             });
         }
+
+        private void SettingsButton_Click(object sender, RoutedEventArgs e)
+        {
+            var settingsWindow = new SettingsWindow();
+            settingsWindow.Owner = this;
+            if (settingsWindow.ShowDialog() == true)
+            {
+                ConfigManager.Save(new AppConfig()
+                {
+                    LogFilePath = settingsWindow.LogPath,
+                    OverlayDuration = settingsWindow.OverlayDuration,
+                });
+
+                var app = (App)Application.Current;
+                app.TailerService.Start();
+            }
+        }
     }
 }

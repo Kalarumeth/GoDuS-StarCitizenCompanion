@@ -18,7 +18,7 @@ namespace StarCitizenCompanion
 
             _timer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromSeconds(3)
+                Interval = TimeSpan.FromSeconds(ConfigManager.Load().OverlayDuration)
             };
             _timer.Tick += (s, e) =>
             {

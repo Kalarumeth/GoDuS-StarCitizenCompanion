@@ -1,10 +1,24 @@
-﻿using StarCitizenCompanion.Models;
+﻿using StarCitizenCompanion.Helper;
+using StarCitizenCompanion.Models;
 using StarCitizenCompanion.Repository;
-using System;
+using StarCitizenCompanion.Services;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Controls;
+
+public class LogTailerService
+{
+    private LogTailer _tailer;
+    public event Action<string> OnNewLine;
+
+    public void Start()
+    {
+        _tailer?.Stop();
+        _tailer = new LogTailer();
+        _tailer.OnNewLine += line => NotificationService.ShowNotification(line);
+        _tailer.Start();
+    }
+
+    public void Stop() => _tailer?.Stop();
+}
 
 public class LogTailer : IDisposable
 {
@@ -14,12 +28,12 @@ public class LogTailer : IDisposable
 
     public event Action<string> OnNewLine;
 
-    public LogTailer(string filePath)
+    public LogTailer()
     {
-        if (!File.Exists(filePath))
-            throw new FileNotFoundException("File di log non trovato", filePath);
+        if (!File.Exists(ConfigManager.Load().LogFilePath))
+            ErrorHelper.ShowError("File di log non trovato");
 
-        _filePath = filePath;
+        _filePath = ConfigManager.Load().LogFilePath;
     }
 
     public void Start()
@@ -31,7 +45,6 @@ public class LogTailer : IDisposable
     public void Stop()
     {
         _cts?.Cancel();
-        _task?.Wait();
     }
 
     private async Task Run(CancellationToken token)

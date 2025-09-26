@@ -16,6 +16,8 @@
         <TextBlock Text="Feed" 
                    FontSize="18" FontWeight="Bold"
                    Margin="0 0 0 10"/>
+        
+        <Button HorizontalAlignment="Right" Content="Impostazioni" Width="100" Margin="0,3,0,3" Click="SettingsButton_Click"/>
 
         <!-- Griglia dei dati -->
         <DataGrid x:Name="FeedGrid"

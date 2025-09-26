@@ -12,6 +12,7 @@ namespace StarCitizenCompanion
     public partial class App : Application
     {
         private NotifyIcon _trayIcon;
+        public LogTailerService TailerService { get; } = new LogTailerService();
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -22,7 +23,6 @@ namespace StarCitizenCompanion
                 db.Database.EnsureCreated();
             }
 
-            // Inizializza tray icon
             _trayIcon = new NotifyIcon
             {
                 Icon = System.Drawing.SystemIcons.Information,
@@ -32,21 +32,12 @@ namespace StarCitizenCompanion
 
             var contextMenu = new ContextMenuStrip();
             contextMenu.Items.Add("Apri", null, (s, ev) => ShowMainWindow());
+            contextMenu.Items.Add("Impostazioni", null, (s, ev) => ShowSettingsWindow());
             contextMenu.Items.Add("Esci", null, (s, ev) => ShutdownApp());
             _trayIcon.ContextMenuStrip = contextMenu;
-
-            // Avvia watcher sul log
-            // Da spottare il path in appconfig
-            // "C:\Program Files\Roberts Space Industries\StarCitizen\LIVE\Game.log");
-
-            var tailer = new LogTailer(@"C:\Program Files\Roberts Space Industries\StarCitizen\LIVE\Game.log");
-            tailer.OnNewLine += line =>
-            {
-                NotificationService.ShowNotification(line);
-            };
-            tailer.Start();
-
-            // Non mostrare subito la main window
+            
+            TailerService.Start();
+                        
             Current.MainWindow = new MainWindow();
             Current.MainWindow.Hide();
         }
@@ -65,6 +56,23 @@ namespace StarCitizenCompanion
             _trayIcon.Visible = false;
             _trayIcon.Dispose();
             Shutdown();
+        }
+
+        private void ShowSettingsWindow()
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var mainWindow = Application.Current.MainWindow as MainWindow;
+                if (mainWindow != null)
+                {
+                    mainWindow.Activate();
+                    var settingsWindow = new SettingsWindow()
+                    {
+                        Owner = mainWindow
+                    };
+                    settingsWindow.ShowDialog();
+                }
+            });
         }
     }
 }
