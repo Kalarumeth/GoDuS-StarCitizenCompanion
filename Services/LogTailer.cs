@@ -1,8 +1,10 @@
-﻿using StarCitizenCompanion.Repository;
+﻿using StarCitizenCompanion.Models;
+using StarCitizenCompanion.Repository;
 using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 
 public class LogTailer : IDisposable
 {
@@ -44,8 +46,13 @@ public class LogTailer : IDisposable
             string line = await reader.ReadLineAsync();
             if (line != null)
             {
-                if (line.Contains(NoticeTag.GetTag(Tag.ActorDeath)))
-                    OnNewLine?.Invoke(NotifyFormatter.ActorDeath(line));
+                NotificationEvent _ne = NotifyFormatter.Notify(line); 
+
+                if (_ne.MessageComposer != null)
+                {
+
+                    OnNewLine?.Invoke(_ne.MessageNotify);
+                }
             }
             else
             {

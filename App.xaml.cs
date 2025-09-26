@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Forms;
+using StarCitizenCompanion.Models;
 using StarCitizenCompanion.Services;
 using Application = System.Windows.Application;
 
@@ -41,8 +42,6 @@ namespace StarCitizenCompanion
             var tailer = new LogTailer(@"C:\Program Files\Roberts Space Industries\StarCitizen\LIVE\Game.log");
             tailer.OnNewLine += line =>
             {
-                Console.WriteLine("Nuovo evento: " + line);
-                // qui puoi chiamare il parser regex
                 NotificationService.ShowNotification(line);
             };
             tailer.Start();

@@ -14,11 +14,11 @@ namespace StarCitizenCompanion
             InitializeComponent();
             MessageText.Text = message;
 
-            Loaded += OverlayWindow_Loaded;
+            SourceInitialized += OverlayWindow_SourceInitialized;
 
             _timer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromSeconds(3) // Mostra per 3 secondi
+                Interval = TimeSpan.FromSeconds(3)
             };
             _timer.Tick += (s, e) =>
             {
@@ -27,16 +27,15 @@ namespace StarCitizenCompanion
             };
             _timer.Start();
         }
-        private void OverlayWindow_Loaded(object sender, RoutedEventArgs e)
+
+        private void OverlayWindow_SourceInitialized(object sender, EventArgs e)
         {
             var hwnd = new WindowInteropHelper(this).Handle;
             int exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
-
-            // 🔹 Non attivabile + click-through
             exStyle |= WS_EX_NOACTIVATE | WS_EX_TRANSPARENT;
-
             SetWindowLong(hwnd, GWL_EXSTYLE, exStyle);
         }
+
 
         private const int GWL_EXSTYLE = -20;
         private const int WS_EX_NOACTIVATE = 0x08000000;

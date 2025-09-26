@@ -1,36 +1,92 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using SQLitePCL;
+using StarCitizenCompanion.Data;
+using StarCitizenCompanion.Models;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+
 
 namespace StarCitizenCompanion.Repository
 {
     public static class NotifyFormatter
     {
-        public static string ActorDeath(string log)
-        {
-            var regex = new Regex(
-            @"CActor::Kill:\s'([^']+)'.*?zone\s'([^']+)'\s+killed by\s'([^']+)'.*?damage type\s'([^']+)'",
-            RegexOptions.Compiled);
+        public static event Action<NotificationEvent> OnNotificationSaved;
 
-            var match = regex.Match(log);
+        public static NotificationEvent Notify(string log)
+        {
+            var _ne = new NotificationEvent()
+            {
+                Tag = NoticeTag.GetTag(log),
+                Log = new Log()
+                {
+                    RawMessage = log,
+                    Date = DateTime.Now
+                }
+            };
+
+            if (_ne.Tag == Tag.None)
+                return _ne;
+
+            var regex = new Regex(
+                NoticeTag.GetTagRegex(_ne.Tag),
+                RegexOptions.Compiled
+            );
+
+            var match = regex.Match(_ne.Log.RawMessage);
             if (match.Success)
             {
-                string killedActor = match.Groups[1].Value;   // CActor::Kill:
-                string zone = match.Groups[2].Value;          // Zone
-                string killer = match.Groups[3].Value;        // Killed by
-                string damageType = match.Groups[4].Value;    // Damage type
+                _ne.Message = new Message()
+                {
+                    Victim = NPCDetect(match.Groups[1].Value),
+                    Zone = match.Groups[2].Value,
+                    Killer = NPCDetect(match.Groups[3].Value),
+                    DamageType = match.Groups[4].Value,
+                };
 
-                Console.WriteLine($"Killed Actor: {killedActor}");
-                Console.WriteLine($"Zone: {zone}");
-                Console.WriteLine($"Killed By: {killer}");
-                Console.WriteLine($"Damage Type: {damageType}");
+                _ne.MessageComposer = MessageComposer(_ne);
+                _ne.MessageNotify = MessageNotify(_ne);
 
-                return $"[{zone}]\r\n{killer} ☠️ {killedActor}\r\n{damageType}";
+                SaveAndNotify(_ne);
+
+                return _ne;
             }
-            return "";
+            return _ne;
+        }
+
+        private static string NPCDetect(string value)
+        {
+            if (value.Contains("NPC"))
+            {
+                var match = Regex.Match(value, @"^(?<prefix>PU)_(?<faction>\w+)_(?<role>\w+)_(?<category>\w+)_(?<npcType>\w+)_(?<zone>\w+)_(?<subzone>\w+)_(?<id>\d+)$");
+                value = $"[{match.Groups["npcType"].Value}] {match.Groups["zone"].Value} {match.Groups["subzone"].Value}";
+            }
+            return value;
+        }
+
+        private static string MessageComposer(NotificationEvent _ne)
+        {
+            return _ne.Tag switch
+            {
+                Tag.ActorDeath => $"[{_ne.Message.Zone}]\r\n{_ne.Message.Killer} ☠️ {_ne.Message.Victim}\r\n{_ne.Message.DamageType}"
+            };
+        }
+
+        private static string MessageNotify(NotificationEvent _ne)
+        {
+            return _ne.Tag switch
+            {
+                Tag.ActorDeath => $"{_ne.Message.Killer} ☠️ {_ne.Message.Victim}"
+            };
+        }
+
+        private static void SaveAndNotify(NotificationEvent _ne)
+        {
+
+            using (var db = new Context())
+            {
+                db.Notifications.Add(_ne);
+                db.SaveChanges();
+            }
+
+            OnNotificationSaved?.Invoke(_ne);
         }
     }
 }

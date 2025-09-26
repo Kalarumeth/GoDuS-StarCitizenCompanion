@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace StarCitizenCompanion.Repository
@@ -14,20 +15,30 @@ namespace StarCitizenCompanion.Repository
 
     public static class NoticeTag
     {
-        public static string GetTag(Tag stag)
+        public static Tag GetTag(string stag)
         {
-            return stag switch
-            {
-                Tag.ActorDeath => "<Actor Death>",
+            if (string.IsNullOrWhiteSpace(stag))
+                return Tag.None;
 
-            };
+            var match = Regex.Match(stag, @"\[Notice\]\s*<(?<event>[^>]+)>", RegexOptions.Compiled);
+            if (!match.Success)
+                return Tag.None;
+
+            return _map.TryGetValue(match.Groups["event"].Value, out var tag)
+                ? tag
+                : Tag.None;
         }
+
+        private static readonly Dictionary<string, Tag> _map = new()
+        {
+            { "Actor Death", Tag.ActorDeath },
+        };
 
         public static string GetTagRegex(Tag stag)
         {
             return stag switch
             {
-                Tag.ActorDeath => "<Actor Death>",
+                Tag.ActorDeath => @"CActor::Kill:\s'([^']+)'.*?zone\s'([^']+)'\s+killed by\s'([^']+)'.*?damage type\s'([^']+)'",
 
             };
         }

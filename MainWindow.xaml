@@ -24,8 +24,8 @@
                   CanUserAddRows="False"
                   IsReadOnly="True">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Messaggio" Binding="{Binding Message}" Width="*"/>
-                <DataGridTextColumn Header="Data" Binding="{Binding Date}" Width="150"/>
+                <DataGridTextColumn Header="Messaggio" Binding="{Binding MessageComposer}" Width="*"/>
+                <DataGridTextColumn Header="Data" Binding="{Binding Log.Date}" Width="150"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

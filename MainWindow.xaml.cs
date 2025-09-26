@@ -1,4 +1,6 @@
-﻿using StarCitizenCompanion.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using StarCitizenCompanion.Models;
+using StarCitizenCompanion.Repository;
 using StarCitizenCompanion.Services;
 using System.Collections.ObjectModel;
 using System.Text;
@@ -27,7 +29,7 @@ namespace StarCitizenCompanion
             InitializeComponent();
             LoadData();
 
-            NotificationService.OnNotificationSaved += OnNotificationSaved;
+            NotifyFormatter.OnNotificationSaved += OnNotificationSaved;
         }
 
         private void LoadData()
@@ -35,7 +37,11 @@ namespace StarCitizenCompanion
             using (var db = new Data.Context())
             {
                 _notifications = new ObservableCollection<NotificationEvent>(
-                    db.Notifications.OrderByDescending(f => f.Date).ToList()
+                    db.Notifications.OrderByDescending(f => f.Log.Date)
+                    .Include(f => f.Log)
+                    .Include(f => f.Message)
+                    .ToList()
+
                 );
 
                 FeedGrid.ItemsSource = _notifications;
